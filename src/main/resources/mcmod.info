@@ -1,0 +1,16 @@
+[
+{
+  "modid": "tschipplib",
+  "name": "TschippLib",
+  "description": "TschippLib is a library for some of my mods",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Tschipp"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

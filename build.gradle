@@ -1,0 +1,209 @@
+buildscript {
+    repositories {
+        maven { url = 'https://files.minecraftforge.net/maven' }
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
+    }
+}
+
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'eclipse'
+apply plugin: 'maven-publish'
+
+apply from: 'https://raw.githubusercontent.com/MinecraftModDevelopment/Gradle-Collection/22e7d543a18cd30675277fbfa3669e3d9e206010/generic/secrets.gradle'
+
+import groovy.json.JsonOutput
+import org.apache.tools.ant.filters.ReplaceTokens
+
+if (project.hasProperty('secretFile')) {
+    loadSecrets(new File((String) findProperty('secretFile')))
+}
+
+group = "tschipp.tschipplib" 
+archivesBaseName = "tschipplib-${minecraft_version}"
+version = "${version}"
+
+sourceCompatibility = targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
+compileJava {
+    sourceCompatibility = targetCompatibility = '1.8'
+}
+
+if (System.getenv('BUILD_NUMBER') != null) {
+    version += "." + System.getenv('BUILD_NUMBER')
+}
+
+minecraft {
+	mappings channel: 'snapshot', version: "${mcp_mappings}"
+	//version = "${minecraft_version}-${forge_version}"
+
+	//replace 'GRADLE:VERSION', version
+		
+	runs {
+        client {
+            workingDirectory project.file('run')
+
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+        }
+
+        server {
+
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+        }
+    }
+}
+
+repositories {
+	
+	 maven {
+        name = "CurseForge"
+        url = "https://minecraft.curseforge.com/api/maven/"
+    }
+    
+    maven {
+        url "https://maven.blamejared.com/"
+    }
+	
+    maven { url 'https://maven.mcmoddev.com' }
+	
+	maven {
+        name = "RecipeStages"
+		url = "https://minecraft.curseforge.com/api/maven/recipe-stages/RecipeStages/1.1.1/RecipeStages-1.1.1.jar"
+    }
+}
+
+dependencies {
+       minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+	   compile "CraftTweaker2:CraftTweaker2-MC1120-Main:1.12-4.1.9.6"
+       compile "net.darkhax.gamestages:GameStages-1.12.2:2.0.115"
+	   compile "net.darkhax.itemstages:ItemStages-1.12.2:2.0.50"
+	  compile "net.darkhax.bookshelf:Bookshelf-1.12.2:2.3.584"
+	   compile "recipe-stages:RecipeStages:1.1.1"
+}
+
+processResources {
+    // this will ensure that this task is redone when the versions change.
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft_version
+
+    // replace stuff in mcmod.info, nothing else
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+                
+        // replace version and mcversion
+        expand 'version':project.version, 'mcversion':project.minecraft_version
+    }
+        
+    // copy everything else except the mcmod.info
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+	 
+	from('src') {
+		filter(ReplaceTokens, tokens: [GRADLEVERSION : project.version])
+    }
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    description = 'Creates a JAR containing the source code.'
+    from sourceSets.main.allSource
+    classifier = 'sources'
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    description = 'Creates a JAR containing the JavaDocs.'
+    from javadoc.destinationDir
+    classifier = 'javadoc'
+}
+
+task deobfJar(type: Jar) {
+    description = 'Creates a JAR containing the non-obfuscated compiled code.'
+    from sourceSets.main.output
+    classifier = "deobf"
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+    archives deobfJar
+}
+
+publishing {
+
+    publications {
+
+        mavenJava(MavenPublication) {
+
+            groupId project.group
+            artifactId project.archivesBaseName
+            version project.version
+            from components.java
+
+            // Allows the maven pom file to be modified.
+            pom.withXml {
+
+                // Go through all the dependencies.
+                asNode().dependencies.dependency.each { dep ->
+
+                    println 'Surpressing artifact ' + dep.artifactId.last().value().last() + ' from maven dependencies.'
+                    assert dep.parent().remove(dep)
+                }
+            }
+
+            artifact sourcesJar {
+
+                classifier 'sources'
+            }
+            artifact javadocJar {
+
+                classifier 'javadoc'
+            }
+            artifact deobfJar {
+
+                classifier 'deobf'
+            }
+        }
+    }
+
+    repositories {
+
+        maven {
+
+            url "file://" + System.getenv("local_maven")
+        }
+    }
+}
+
+/*
+task signJar(type: SignJar, dependsOn: reobfJar) {
+
+    // Skips if the keyStore property is missing.
+    onlyIf {
+        project.hasProperty('modkeyStore')
+    }
+
+    // findProperty allows us to reference the property without it existing. 
+    // Using project.propName would cause the script to fail validation if 
+    // the property did not exist. 
+    keyStore = project.findProperty('modkeyStore')
+    alias = project.findProperty('modkeyStoreAlias')
+    storePass = project.findProperty('modkeyStorePass')
+    keyPass = project.findProperty('modkeyStoreKeyPass')
+    inputFile = jar.archivePath
+    outputFile = jar.archivePath
+} */
+
+// Runs this task automatically when build is ran. 
+//build.dependsOn signJar
+
+
