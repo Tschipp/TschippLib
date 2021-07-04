@@ -18,7 +18,7 @@ import tschipp.tschipplib.network.CTileEntitySyncPacketHandler;
 import tschipp.tschipplib.network.STileEntitySyncPacket;
 import tschipp.tschipplib.network.STileEntitySyncPacketHandler;
 
-@Mod(modid = TschippLib.MODID, name = "TschippLib", version = TschippLib.VERSION, acceptableRemoteVersions = "[1.1.4,)")
+@Mod(modid = TschippLib.MODID, name = "TschippLib", version = TschippLib.VERSION, acceptableRemoteVersions = "[1.1.3,)")
 public class TschippLib {
 	
 	public static final String MODID = "tschipplib";
