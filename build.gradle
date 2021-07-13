@@ -80,6 +80,11 @@ repositories {
         name = "RecipeStages"
 		url = "https://minecraft.curseforge.com/api/maven/recipe-stages/RecipeStages/1.1.1/RecipeStages-1.1.1.jar"
     }
+    
+    maven { 
+	    name = "CoFH Maven" 
+	    url = "http://maven.covers1624.net" 
+    } 
 }
 
 dependencies {
@@ -87,8 +92,9 @@ dependencies {
 	   compile "CraftTweaker2:CraftTweaker2-MC1120-Main:1.12-4.1.9.6"
        compile "net.darkhax.gamestages:GameStages-1.12.2:2.0.115"
 	   compile "net.darkhax.itemstages:ItemStages-1.12.2:2.0.50"
-	  compile "net.darkhax.bookshelf:Bookshelf-1.12.2:2.3.584"
+	   compile "net.darkhax.bookshelf:Bookshelf-1.12.2:2.3.584"
 	   compile "recipe-stages:RecipeStages:1.1.1"
+	   compile "cofh:RedstoneFlux:1.12-2.1.0.7:universal"
 }
 
 processResources {

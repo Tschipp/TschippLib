@@ -2,7 +2,7 @@ package tschipp.tschipplib.gui;
 
 import java.util.ArrayList;
 
-import cofh.api.energy.IEnergyHandler;
+import cofh.redstoneflux.api.IEnergyHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.util.ResourceLocation;
