@@ -155,6 +155,9 @@ public class GamestagesHelper
 
 					IItemStack output = CraftTweakerMC.getIItemStack(recipe.getRecipeOutput());
 
+					if(output == null || output.isEmpty())
+						continue;
+					
 					String outputStage = ItemStages.ITEM_STAGES.get(recipe.getRecipeOutput().copy().splitStack(1));
 
 					if (outputStage != null)
@@ -197,6 +200,7 @@ public class GamestagesHelper
 						{
 							try
 							{
+								TschippLib.LOGGER.info(stageName + ", " + output + ", " + stagePrimitive);
 								stagePrimitive.invoke(null, stageName, output);
 								CraftTweakerAPI.logInfo("Staging Primitive Recipe " + output.getName() + " with stage " + stageName);
 							}
